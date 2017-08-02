@@ -1,3 +1,4 @@
+//=============== Librerías paraa conectar el ESP8266 a Wifi ==========================
 static WiFiClientSecure sslClient; // for ESP8266
 
 const char *onSuccess = "\"Successfully invoke device method\"";
@@ -23,12 +24,13 @@ void initIoThubClient()
 }
 #endif
 
+
+//****************** Método recibir confirmación de envío ***********************
 static void sendCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userContextCallback)
 {
     if (IOTHUB_CLIENT_CONFIRMATION_OK == result)
     {
         LogInfo("Message sent to Azure IoT Hub");
-        blinkLED();
     }
     else
     {
@@ -37,6 +39,9 @@ static void sendCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userCon
     messagePending = false;
 }
 
+
+
+//****************** Destrucción de msj y manejo de la alerta de temperatura ***********************
 static void sendMessage(IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle, char *buffer, bool temperatureAlert)
 {
     IOTHUB_MESSAGE_HANDLE messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char *)buffer, strlen(buffer));
@@ -63,18 +68,21 @@ static void sendMessage(IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle, char *buffer
     }
 }
 
+//****************** Método para mandar mensaje ***********************
 void start()
 {
     LogInfo("Start sending temperature and humidity data");
     messageSending = true;
 }
 
+//****************** Método para iniciar la LCD ***********************
 void stop()
 {
     LogInfo("Stop sending temperature and humidity data");
     messageSending = false;
 }
 
+//****************** Método para manejo de mensaje recibido ***********************
 IOTHUBMESSAGE_DISPOSITION_RESULT receiveMessageCallback(IOTHUB_MESSAGE_HANDLE message, void *userContextCallback)
 {
     IOTHUBMESSAGE_DISPOSITION_RESULT result;
@@ -104,6 +112,8 @@ IOTHUBMESSAGE_DISPOSITION_RESULT receiveMessageCallback(IOTHUB_MESSAGE_HANDLE me
     return IOTHUBMESSAGE_ACCEPTED;
 }
 
+
+//****************** Método para invocar desde la consola de Azure ***********************
 int deviceMethodCallback(const char *methodName, const unsigned char *payload, size_t size, unsigned char **response, size_t *response_size, void *userContextCallback)
 {
     LogInfo("Try to invoke method %s", methodName);
