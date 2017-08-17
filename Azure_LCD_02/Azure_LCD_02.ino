@@ -1,4 +1,4 @@
-//=============== Librerías paraa conectar el ESP8266 a Wifi ==========================
+//=============== Librerías para conectar el ESP8266 a Wifi ==========================
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <WiFiUdp.h>
