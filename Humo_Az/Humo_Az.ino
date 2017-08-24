@@ -28,7 +28,7 @@ const int digital = 5;
 static bool messagePending = false;
 static bool messageSending = true;
 //=============== Credenciales de conexión para el IoT Hub ==========================
-static char connectionString[] = "HostName=demoBMobile.azure-devices.net;DeviceId=H1;SharedAccessKey=a8QGKBHkkMajqbY2e9aR9JZFmJ6vhz5g8UxeuaqjziM=";
+static char connectionString[] = "HostName=Bmobile.azure-devices.net;DeviceId=Humo;SharedAccessKey=/NO/DXpNglAy8HhpaQ6Tvtaa/46KTBlhmCOsehwgrac=";
 //=============== Credenciales para conexión WiFi ==========================
 static char ssid[] = "TVBmobile"; 
 static char pass[] = "scanda01";

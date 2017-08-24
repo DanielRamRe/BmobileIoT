@@ -1,0 +1,159 @@
+//=============== Librerías paraa conectar el ESP8266 a Wifi ==========================
+static WiFiClientSecure sslClient; // for ESP8266
+
+const char *onSuccess = "\"Successfully invoke device method\"";
+const char *notFound = "\"No method found\"";
+
+/*
+ * The new version of AzureIoTHub library change the AzureIoTHubClient signature.
+ * As a temporary solution, we will test the definition of AzureIoTHubVersion, which is only defined
+ *    in the new AzureIoTHub library version. Once we totally deprecate the last version, we can take
+ *    the #ifdef out.
+ */
+#ifdef AzureIoTHubVersion
+static AzureIoTHubClient iotHubClient;
+void initIoThubClient()
+{
+    iotHubClient.begin(sslClient);
+}
+#else
+static AzureIoTHubClient iotHubClient(sslClient);
+void initIoThubClient()
+{
+    iotHubClient.begin();
+}
+#endif
+
+
+//****************** Método recibir confirmación de envío ***********************
+static void sendCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userContextCallback)
+{
+    if (IOTHUB_CLIENT_CONFIRMATION_OK == result)
+    {
+        LogInfo("Message sent to Azure IoT Hub");
+    }
+    else
+    {
+        LogInfo("Failed to send message to Azure IoT Hub");
+    }
+    messagePending = false;
+}
+
+
+
+//****************** Destrucción de msj y manejo de la alerta de temperatura ***********************
+static void sendMessage(IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle, char *buffer, bool temperatureAlert)
+{
+    IOTHUB_MESSAGE_HANDLE messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char *)buffer, strlen(buffer));
+    if (messageHandle == NULL)
+    {
+        LogInfo("unable to create a new IoTHubMessage");
+    }
+    else
+    {
+        MAP_HANDLE properties = IoTHubMessage_Properties(messageHandle);
+        Map_Add(properties, "temperatureAlert", temperatureAlert ? "true" : "false");
+        LogInfo("Sending message: %s", buffer);
+        if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, messageHandle, sendCallback, NULL) != IOTHUB_CLIENT_OK)
+        {
+            LogInfo("Failed to hand over the message to IoTHubClient");
+        }
+        else
+        {
+            messagePending = true;
+            LogInfo("IoTHubClient accepted the message for delivery");
+        }
+
+        IoTHubMessage_Destroy(messageHandle);
+    }
+}
+
+//****************** Método para mandar mensaje ***********************
+void start()
+{
+    LogInfo("Start sending temperature and humidity data");
+    messageSending = true;
+}
+
+//****************** Método para iniciar la LCD ***********************
+void stop()
+{
+    LogInfo("Stop sending temperature and humidity data");
+    messageSending = false;
+}
+
+//****************** Método para manejo de mensaje recibido ***********************
+IOTHUBMESSAGE_DISPOSITION_RESULT receiveMessageCallback(IOTHUB_MESSAGE_HANDLE message, void *userContextCallback)
+{
+    IOTHUBMESSAGE_DISPOSITION_RESULT result;
+    const unsigned char *buffer;
+    size_t size;
+    if (IoTHubMessage_GetByteArray(message, &buffer, &size) != IOTHUB_MESSAGE_OK)
+    {
+        LogInfo("unable to IoTHubMessage_GetByteArray");
+        result = IOTHUBMESSAGE_REJECTED;
+    }
+    else
+    {
+        /*buffer is not zero terminated*/
+        char *temp = (char *)malloc(size + 1);
+
+        if (temp == NULL)
+        {
+            return IOTHUBMESSAGE_ABANDONED;
+        }
+
+        strncpy(temp, (const char *)buffer, size);
+        temp[size] = '\0';
+        LogInfo("Receive C2D message: %s", temp);
+        free(temp);
+        blinkLED();
+    }
+    return IOTHUBMESSAGE_ACCEPTED;
+}
+
+
+//****************** Método para invocar desde la consola de Azure ***********************
+int deviceMethodCallback(const char *methodName, const unsigned char *payload, size_t size, unsigned char **response, size_t *response_size, void *userContextCallback)
+{
+    LogInfo("Try to invoke method %s", methodName);
+    const char *responseMessage = onSuccess;
+    int result = 200;
+
+    if (strcmp(methodName, "start") == 0)
+    {
+        start();
+    }
+    else if (strcmp(methodName, "stop") == 0)
+    {
+        stop();
+    }
+    else
+    {
+        LogInfo("No method %s found", methodName);
+        responseMessage = notFound;
+        result = 404;
+    }
+
+    *response_size = strlen(responseMessage);
+    *response = (unsigned char *)malloc(*response_size);
+    strncpy((char *)(*response), responseMessage, *response_size);
+
+    return result;
+}
+
+void twinCallback(
+    DEVICE_TWIN_UPDATE_STATE updateState,
+    const unsigned char *payLoad,
+    size_t size,
+    void *userContextCallback)
+{
+    char *temp = (char *)malloc(size + 1);
+    for (int i = 0; i < size; i++)
+    {
+        temp[i] = (char)(payLoad[i]);
+    }
+    temp[size] = '\0';
+    parseTwinMessage(temp);
+    free(temp);
+}

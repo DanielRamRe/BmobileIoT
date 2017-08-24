@@ -32,7 +32,7 @@ static bool messagePending = false;
 static bool messageSending = true;
 
 //=============== Credenciales de conexión para el IoT Hun ==========================
-static char connectionString[] = "HostName=demoBMobile.azure-devices.net;DeviceId=LCD01;SharedAccessKey=faahBpFyybzdJKJpEGYwyTNQWzwI9QIUKDrg5Xlq7Lc=";
+static char connectionString[] = "HostName=Bmobile.azure-devices.net;DeviceId=LCD2;SharedAccessKey=ezd6Y3iWi4aVwpgTCi4/RksGEqxoD6rWfYXMuk/8az0=";
 
 //=============== Credenciales para conexión WiFi ==========================
 static char ssid[] = "TVBmobile";

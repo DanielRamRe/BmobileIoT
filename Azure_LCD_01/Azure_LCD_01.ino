@@ -1,4 +1,4 @@
-//=============== Librerías paraa conectar el ESP8266 a Wifi ==========================
+//=============== Librerías para conectar el ESP8266 a Wifi ==========================
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <WiFiUdp.h>
@@ -7,6 +7,12 @@
 #include <AzureIoTHub.h>
 #include <AzureIoTProtocol_MQTT.h>
 #include <AzureIoTUtility.h>
+
+//=============== Librería para la pantalla LCD ==========================
+#include <LiquidCrystal_I2C.h>// Libreria i2c LCD
+LiquidCrystal_I2C lcd(0x27, 16, 2);                       //Parametros LCD
+
+
 //=============== Información física del sensor ==========================
 #define DEVICE_ID "LCD0"
 
@@ -26,7 +32,7 @@ static bool messagePending = false;
 static bool messageSending = true;
 
 //=============== Credenciales de conexión para el IoT Hun ==========================
-static char connectionString[] = "HostName=Bmobile.azure-devices.net;DeviceId=Corriente;SharedAccessKey=tv+5g5VtH+/93rNb+Xva0NApjXe2vDclmN7sWOmCdvM=";
+static char connectionString[] = "HostName=Bmobile.azure-devices.net;DeviceId=LCD1;SharedAccessKey=uTbwBukHAdkMWsSp9aitWbEDkxUKIMe7Q9Auh7Ie7ZY=";
 
 //=============== Credenciales para conexión WiFi ==========================
 static char ssid[] = "TVBmobile";
@@ -59,6 +65,38 @@ String lecturas;
 //=============== String para definir el handle del IoT Hub ==========================
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 static int messageCount = 1;
+
+//****************** Método para iniciar la LCD ***********************
+void initLCD()
+{
+  Wire.begin(2, 14);
+  lcd.init();                         //Inicializando la LCD
+  lcd.display();                      //Desplegar el texto (On/Off)
+  lcd.clear();
+  lcd.backlight();                    //Backlight (On/Off)
+  lcd.setCursor(0, 0);
+  lcd.print(" T  |  H  |  C  ");
+  lcd.setCursor(0, 1);
+  lcd.print("    |     |     ");
+  Wire.endTransmission();
+}
+
+//****************** Método para imprimir en la LCD***********************
+void printLCD() {
+ int tempLCD = int(readTemperature_());
+  int humLCD = int(readHumidity_());
+  int current = readCurrSen(20);
+  lecturas = (String)tempLCD + "c | " + (String)humLCD + "% | " + (String)current + " A";
+  Wire.begin(2, 14);
+  lcd.init();
+  lcd.display();
+  lcd.setCursor(0, 0);
+  lcd.print(" T  |  H  |  C  ");
+  lcd.setCursor(0, 1);
+  lcd.print(lecturas);
+  Wire.endTransmission(true);
+
+}
 
 //****************** Método para conectar a Wifi ***********************
 void initWifi()
@@ -119,6 +157,7 @@ void initSerial()
 void setup()
 {
   pinMode(LED_PIN, OUTPUT);
+  initLCD();
   initSerial();
   delay(2000);
 
@@ -140,8 +179,10 @@ void setup()
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////Loop de Arduino\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
 void loop()
 {
+  printLCD();
   if (!messagePending && messageSending)
   {
     char messagePayload[MESSAGE_MAX_LEN];
