@@ -16,7 +16,7 @@
 #define PUERTA_ALERT 10
 
 //=============== Intervalo en que se envían mensajes al IoT Hub ==========================
-#define INTERVAL 30000
+#define INTERVAL 300000
 
 // If don't have a physical DHT sensor, can send simulated data to IoT hub
 #define SIMULATED_DATA false
