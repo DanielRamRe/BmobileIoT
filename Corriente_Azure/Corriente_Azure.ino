@@ -8,7 +8,7 @@
 #include <AzureIoTProtocol_MQTT.h>
 #include <AzureIoTUtility.h>
 //=============== Información física del sensor ==========================
-#define DEVICE_ID "LCD0"
+#define DEVICE_ID "Corriente"
 
 //=============== Valor en que se activa la alerta ==========================
 #define TEMPERATURE_ALERT 28
@@ -118,7 +118,6 @@ void initSerial()
 //////////////////////////////Setup de Arduino\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 void setup()
 {
-  pinMode(LED_PIN, OUTPUT);
   initSerial();
   delay(2000);
 

@@ -14,7 +14,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);                       //Parametros LCD
 
 
 //=============== Información física del sensor ==========================
-#define DEVICE_ID "LCD0"
+#define DEVICE_ID "LCD1"
 
 //=============== Valor en que se activa la alerta ==========================
 #define TEMPERATURE_ALERT 28
@@ -156,7 +156,6 @@ void initSerial()
 //////////////////////////////Setup de Arduino\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 void setup()
 {
-  pinMode(LED_PIN, OUTPUT);
   initLCD();
   initSerial();
   delay(2000);

@@ -11,7 +11,7 @@
 #define DEVICE_ID "P1"
 
 // Pin layout configuration
-#define LED_PIN 5
+#define LED_PIN 15
 //=============== Valor en que se activa la alerta ==========================
 #define PUERTA_ALERT 10
 

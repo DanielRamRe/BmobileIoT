@@ -14,7 +14,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);                       //Parametros LCD
 
 
 //=============== Información física del sensor ==========================
-#define DEVICE_ID "LCD2"
+#define DEVICE_ID "LCD3"
 
 //=============== Valor en que se activa la alerta ==========================
 #define TEMPERATURE_ALERT 28
@@ -32,7 +32,7 @@ static bool messagePending = false;
 static bool messageSending = true;
 
 //=============== Credenciales de conexión para el IoT Hun ==========================
-static char connectionString[] = "HostName=Bmobile.azure-devices.net;DeviceId=LCD2;SharedAccessKey=ezd6Y3iWi4aVwpgTCi4/RksGEqxoD6rWfYXMuk/8az0=";
+static char connectionString[] = "HostName=Bmobile.azure-devices.net;DeviceId=LCD3;SharedAccessKey=yXhqgBLudAbJQzR0tkNLWCnljaoCygcSSvqKo56xST0=";
 
 //=============== Credenciales para conexión WiFi ==========================
 static char ssid[] = "TVBmobile";
